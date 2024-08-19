@@ -1,85 +1,83 @@
 import { useState, useEffect } from 'react';
-import { getRandomNumber, loadCell, switchCell, notVowel } from '../utils';
+import { getRandomNumber, loadWord, switchCell, notVowel } from '../utils';
 import { totalNumberOfConsonants, maxGameSize } from '../constants';
 
 const useBoard = wordLengths => {
-  const [squares, setSquares] = useState([]);
+  const [words, setWords] = useState([]);
+  //const [squares, setSquares] = useState([]);
   const [wordNo, setWordNo] = useState(1);
+
+  // calculate board size   Turn this into the func that totals an array**************
+  const isBoardTooLarge = workWords => {
+    if (workWords.length === 0) return;
+    const x = workWords.reduce((totalX, word) => {
+      if (word.direction === 'row') {
+        return totalX + word.length;
+      } else {
+        return totalX + 1;
+      }
+    }, 0);
+    const y = workWords.reduce((totalY, word) => {
+      if (word.direction === 'column') {
+        return totalY + word.length;
+      } else {
+        return totalY + 1;
+      }
+    }, 0);
+    if (x > maxGameSize || y > maxGameSize) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   // create an empty board
   useEffect(() => {
-    let workSquares = JSON.parse(JSON.stringify(squares));
-    let posY = 1;
+    let workWords = JSON.parse(JSON.stringify(words));
     let workWordNo = wordNo;
-    let posX = 1;
-    let alignment = 'row';
+    let direction = 'row';
     let randomNumber;
-    let doubleWord = false;
-    // outer loop runs through selected word lengths
+    let posX = 1;
+    let posY = 1;
     for (let i = 0; i < wordLengths.length; i++) {
-      // check to see if you have made the largest board possible yet
-      if (
-        (alignment === 'row' && posX + wordLengths[i] > maxGameSize) ||
-        (alignment === 'column' && posY + wordLengths[i] > maxGameSize)
-      ) {
+      if (isBoardTooLarge(workWords)) {
         break;
       }
-      // inner loop processes each letter in a word
+      [workWords, posX, posY] = loadWord(
+        posX,
+        posY,
+        workWords,
+        direction,
+        workWordNo,
+        wordLengths[i],
+        randomNumber
+      );
+      // reset position back to last letter of last word
+      direction === 'row' ? posX-- : posY--;
+      // randomly adjust if you build the next word on the current word's last or 2nd last letter
       randomNumber = getRandomNumber(1, 2);
-      for (let x = 1; x < wordLengths[i]; x++) {
-        // check if letter is used in 2 words
-        doubleWord = (x === 1 && i !== 0) || (x === 1 && posX !== 1);
-        workSquares = loadCell(posX, posY, workSquares, doubleWord, workWordNo);
-        alignment === 'row' ? posX++ : posY++;
-        // randomly adjust if you build the next word on the current word's last or 2nd last letter
-        //      row/1st letter of new word is last letter of previous/ 4 or 5 letter word/not 1st word
-        if (alignment === 'row' && x === 1 && wordLengths[i - 1] > 2 && i > 0 && wordLengths[i] !== 2) {
-          if (randomNumber === 1) {
-            posY--;
-            workSquares = switchCell(workSquares);
-          }
-        } else if (
-          alignment === 'column' &&
-          x === 1 &&
-          wordLengths[i - 1] > 2 &&
-          i > 0 &&
-          wordLengths[i] !== 2
-        ) {
-          if (randomNumber === 1) {
-            posX--;
-            workSquares = switchCell(workSquares);
-          }
+      if ((randomNumber === 1 && i === 0 && wordLengths[i] > 2 && posY === 1) ||
+         (randomNumber === 1 && i > 0 && wordLengths[i - 1] > 3 && wordLengths[i] !== 2)) {
+        if (direction === 'row') {
+          posX--;
+        } else {
+          posY--;
         }
       }
-      // switch direction of next word
-      alignment = alignment === 'row' ? 'column' : 'row';
-      // if room still exists for another word, start processing word lengths at the beginning
-      if (
-        (alignment === 'row' && posX + wordLengths[0] < maxGameSize && i + 1 === wordLengths.length) ||
-        (alignment === 'column' && posY + wordLengths[0] < maxGameSize && i + 1 === wordLengths.length)
-      ) {
+      direction = direction === 'row' ? 'column' : 'row';
+      workWordNo++;
+      if (i === wordLengths.length - 1) {
         i = -1;
-      }
-      // increment word counter
-      workWordNo++;  
+      } // Re-loop through wordlengths if board is not max size
     }
-    // Push out last letter of last word
-    workWordNo--;
-    workSquares = loadCell(posX, posY, workSquares, false, workWordNo);
-    setSquares(workSquares);
-    setWordNo(workWordNo);
+    // Update statr values
+    setWords(workWords);
+    setWordNo(workWordNo--);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // add a letter to the board
-  const addLetter = (
-    e,
-    i,
-    remainingAlphabet,
-    setRemainingAlphabet,
-    setErrorMessage,
-    maxNumberConsonants
-  ) => {
-    const newSquares = JSON.parse(JSON.stringify(squares));
+  const addLetter = (e, i, j, remainingAlphabet, setRemainingAlphabet, setErrorMessage, maxNumberConsonants) => {
+    const newWords = JSON.parse(JSON.stringify(words));
     const workRemainingAlphabet = JSON.parse(JSON.stringify(remainingAlphabet));
     let newLetter = e.target.value.replace(/[^a-z]/gi, '').toUpperCase();
 
@@ -90,6 +88,7 @@ const useBoard = wordLengths => {
       newLetter = '';
     }
     // Ensure input is a letter and available for selection
+    console.log('target',e.target.value)
     if (
       workRemainingAlphabet.indexOf(e.target.value.toUpperCase()) === -1 &&
       e.target.value !== '' &&
@@ -101,22 +100,31 @@ const useBoard = wordLengths => {
     }
     setErrorMessage(workErrorMessage);
     // Add letter to available list if removed from game
-    if (newSquares[i].letter !== '' && e.target.value === '' && notVowel(newSquares[i].letter)) {
-      workRemainingAlphabet.push(newSquares[i].letter);
-    }
+    // if (newSquares[i].letter !== '' && e.target.value === '' && notVowel(newSquares[i].letter)) {
+    //   workRemainingAlphabet.push(newSquares[i].letter);
+    // }
     // if letter entered was not '' and was not a vowel, remove it from alphabet list
     if (newLetter !== '') {
       if (notVowel(newLetter)) {
         workRemainingAlphabet.splice(workRemainingAlphabet.indexOf(newLetter), 1);
       }
     }
+    // update letter
+    console.log('newWords',newWords, i , j)
+
+    let tempNewWords = newWords[i].word.split('')
+    console.log('tempNewWords',tempNewWords)
+    tempNewWords[j] = newLetter;
+    console.log('tempNewWords',tempNewWords)
+    newWords[i].word = tempNewWords.join('')
+
+    //newWords[i].word[j] = newLetter;
     // save state
-    newSquares[i].letter = newLetter;
-    setSquares(newSquares);
+    setWords(newWords);
     setRemainingAlphabet(workRemainingAlphabet);
   };
 
-  return [squares, setSquares, wordNo, addLetter];
+  return [words, setWords, wordNo, addLetter];
 };
 
 export default useBoard;

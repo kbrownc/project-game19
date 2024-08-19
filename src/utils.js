@@ -51,20 +51,26 @@ const getRandomNumber = (start, end) => {
   return random;
 };
 
-const loadCell = (x, y, workSquares, doubleWord, workWordNo) => {
-  let newSquare = {};
-  let wordNums = [workWordNo];
-  if (doubleWord) {
-    wordNums = [workWordNo, workWordNo - 1];
-  }
-  newSquare = {
-    letter: '',
-    locationCol: x + ' / ' + (x + 1),
-    locationRow: y + ' / ' + (y + 1),
-    wordNums: wordNums,
+const loadWord = (x, y, workWords, direction, workWordNo, length, randomNumber) => {
+  let newWord = {};
+  newWord = {
+    number: workWordNo,
+    word: ''.padStart(length, ' '),
+    direction: direction,
+    length: length,
+    position: { x: x, y: y },
   };
-  workSquares.push(newSquare);
-  return workSquares;
+  if (newWord.length === 2) newWord.word = '12'
+  if (newWord.length === 3) newWord.word = 'abc'
+  if (newWord.length === 4) newWord.word = '3456'
+  if (newWord.length === 5) newWord.word = 'defgh'
+  // if (newWord.number === 1) newWord.word = '1234'
+  // if (newWord.number === 2) newWord.word = '56789'
+  // if (newWord.number === 3) newWord.word = 'abcd'
+  //console.log('newWord',newWord)
+  workWords.push(newWord);
+  direction === 'row' ? x = x + length : y = y + length;
+  return [workWords, x, y];
 };
 
 const switchCell = workSquares => {
@@ -109,11 +115,11 @@ const checkWords = words => {
   return [isWordValid, invalidWord];
 };
 
-function verifyBoard(words, setScore, squares, setMsgColorRed, maxNumberConsonants, setErrorMessage) {
+function verifyBoard(words, setScore, setMsgColorRed, maxNumberConsonants, setErrorMessage) {
   let workErrorMessage = '';
   // Are all squares filled in?
   if (
-    squares.some(item => {
+    words.some(item => {
       return item.letter === '';
     })
   ) {
@@ -142,7 +148,7 @@ export {
   validWord,
   getWords,
   getRandomNumber,
-  loadCell,
+  loadWord,
   switchCell,
   calculateScore,
   notVowel,

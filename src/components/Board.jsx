@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Square from './Square';
 import useBoard from './useBoard';
-import { getWords, verifyBoard } from '../utils';
+import { verifyBoard } from '../utils';
 
 const Board = ({
   remainingAlphabet,
@@ -13,31 +13,42 @@ const Board = ({
   wordLengths,
 }) => {
   const [score, setScore] = useState(0);
-  const [squares, setSquares, wordNo, addLetter] = useBoard(wordLengths);
+  const [words, setWords, wordNo, addLetter] = useBoard(wordLengths);
 
   const handleDoneClick = () => {
-    let words = getWords(wordNo, squares);
-    verifyBoard(words, setScore, squares, setMsgColorRed, maxNumberConsonants, setErrorMessage);
+    //let words = getWords(wordNo, words);
+    verifyBoard(words, setScore, setMsgColorRed, maxNumberConsonants, setErrorMessage);
+    if (errorMessage !== '') {
+      console.log('**********', errorMessage);
+    }
   };
 
   return (
     <div>
       <div className="score"> Score: {score}</div>
       <div className="board">
-        {squares.map((square, i) => (
-          <Square
-            key={i}
-            i={i}
-            remainingAlphabet={remainingAlphabet}
-            setRemainingAlphabet={setRemainingAlphabet}
-            setErrorMessage={setErrorMessage}
-            maxNumberConsonants={maxNumberConsonants}
-            wordLengths={wordLengths}
-            squares={squares}
-            setSquares={setSquares}
-            addLetter={addLetter}
-          />
-        ))}
+        {words.map(({ word, position, direction }, i) => {
+          return word.split('').map((singleLetter, j) => {
+            return (
+              <Square
+                key={j}
+                i={i}
+                j={j}
+                remainingAlphabet={remainingAlphabet}
+                setRemainingAlphabet={setRemainingAlphabet}
+                setErrorMessage={setErrorMessage}
+                maxNumberConsonants={maxNumberConsonants}
+                wordLengths={wordLengths}
+                words={words}
+                setWords={setWords}
+                addLetter={addLetter}
+                direction={direction}
+                position={position}
+                singleLetter={singleLetter}
+              />
+            );
+          });
+        })}
       </div>
       <button className="restart" onClick={() => handleDoneClick()}>
         Done
