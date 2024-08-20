@@ -110,15 +110,9 @@ const useBoard = wordLengths => {
       }
     }
     // update letter
-    console.log('newWords',newWords, i , j)
-
-    let tempNewWords = newWords[i].word.split('')
-    console.log('tempNewWords',tempNewWords)
-    tempNewWords[j] = newLetter;
-    console.log('tempNewWords',tempNewWords)
-    newWords[i].word = tempNewWords.join('')
-
-    //newWords[i].word[j] = newLetter;
+    let tempNewWord = newWords[i].word.split('')
+    newLetter === '' ? tempNewWord[j] = ' ' : tempNewWord[j] = newLetter
+    newWords[i].word = tempNewWord.join('')
     // save state
     setWords(newWords);
     setRemainingAlphabet(workRemainingAlphabet);

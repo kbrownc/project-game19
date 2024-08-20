@@ -19,6 +19,8 @@ const Square = ({
     addLetter(e, i, j, remainingAlphabet, setRemainingAlphabet, setErrorMessage, maxNumberConsonants);
   };
 
+  if (singleLetter === ' ') singleLetter = ''
+
   return (
       <input
         style={{
