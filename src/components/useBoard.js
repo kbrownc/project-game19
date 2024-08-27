@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getRandomNumber, loadWord, switchCell, notVowel } from '../utils';
+import { getRandomNumber, loadWord, updateWord, notVowel, copyLetter } from '../utils';
 import { totalNumberOfConsonants, maxGameSize } from '../constants';
 
 const useBoard = wordLengths => {
@@ -64,6 +64,13 @@ const useBoard = wordLengths => {
           posY--;
         }
       }
+      workWords = updateWord(
+        posX,
+        posY,
+        workWords,
+        workWords.length - 1
+      );
+
       direction = direction === 'row' ? 'column' : 'row';
       workWordNo++;
       if (i === wordLengths.length - 1) {
@@ -77,7 +84,7 @@ const useBoard = wordLengths => {
 
   // add a letter to the board
   const addLetter = (e, i, j, remainingAlphabet, setRemainingAlphabet, setErrorMessage, maxNumberConsonants) => {
-    const newWords = JSON.parse(JSON.stringify(words));
+    let newWords = JSON.parse(JSON.stringify(words));
     const workRemainingAlphabet = JSON.parse(JSON.stringify(remainingAlphabet));
     let newLetter = e.target.value.replace(/[^a-z]/gi, '').toUpperCase();
 
@@ -88,7 +95,6 @@ const useBoard = wordLengths => {
       newLetter = '';
     }
     // Ensure input is a letter and available for selection
-    console.log('target',e.target.value)
     if (
       workRemainingAlphabet.indexOf(e.target.value.toUpperCase()) === -1 &&
       e.target.value !== '' &&
@@ -113,6 +119,8 @@ const useBoard = wordLengths => {
     let tempNewWord = newWords[i].word.split('')
     newLetter === '' ? tempNewWord[j] = ' ' : tempNewWord[j] = newLetter
     newWords[i].word = tempNewWord.join('')
+    // copy letter
+    newWords = copyLetter(newWords,newLetter,i,j)
     // save state
     setWords(newWords);
     setRemainingAlphabet(workRemainingAlphabet);

@@ -7,6 +7,7 @@ import { vowels, maxConsonantsPlayable } from './constants';
 
 // Look in correct dictionary to see if word exists
 function validWord(word) {
+  console.log('valid word', word);
   let wordDictionArray = [wordDictionary2, wordDictionary3, wordDictionary4, wordDictionary5];
   let wordDictionary = wordDictionArray[word.length - 2];
   return !!wordDictionary.find(item => {
@@ -54,40 +55,82 @@ const getRandomNumber = (start, end) => {
 const loadWord = (x, y, workWords, direction, workWordNo, length, randomNumber) => {
   let newWord = {};
   newWord = {
-    number: workWordNo,
+    id: workWordNo,
+    relatedLetter: { x: 0, y: 0 },
     word: ''.padStart(length, ' '),
     direction: direction,
     length: length,
     position: { x: x, y: y },
   };
-  if (newWord.length === 2) newWord.word = '12'
-  if (newWord.length === 3) newWord.word = 'abc'
-  if (newWord.length === 4) newWord.word = '3456'
-  if (newWord.length === 5) newWord.word = 'defgh'
-  // if (newWord.number === 1) newWord.word = '1234'
-  // if (newWord.number === 2) newWord.word = '56789'
-  // if (newWord.number === 3) newWord.word = 'abcd'
-  //console.log('newWord',newWord)
   workWords.push(newWord);
-  direction === 'row' ? x = x + length : y = y + length;
+  direction === 'row' ? (x = x + length) : (y = y + length);
   return [workWords, x, y];
 };
 
-const switchCell = workSquares => {
-  let savedLetter = workSquares[workSquares.length - 2].letter;
-  let savedWordNums = workSquares[workSquares.length - 2].wordNums;
-  workSquares[workSquares.length - 2].letter = workSquares[workSquares.length - 1].letter;
-  workSquares[workSquares.length - 2].wordNums = workSquares[workSquares.length - 1].wordNums;
-  workSquares[workSquares.length - 1].letter = savedLetter;
-  workSquares[workSquares.length - 1].wordNums = savedWordNums;
-  return workSquares;
+const updateWord = (x, y, workWords, i) => {
+  workWords[i].relatedLetter.x = x;
+  workWords[i].relatedLetter.y = y;
+  return workWords;
+};
+
+const copyLetter = (newWords, newLetter, i, j) => {
+  //console.log('copy', newLetter, 'word', i, 'offset', j);
+  let posJustPlayedX = 0;
+  let posJustPlayedY = 0;
+  if (newWords[i].direcyion === 'row') {
+    posJustPlayedX =  newWords[i].position.x + j
+    posJustPlayedY =  newWords[i].position.y
+  } else {
+    posJustPlayedX =  newWords[i].position.x
+    posJustPlayedY =  newWords[i].position.y + j
+  }
+  //console.log(posJustPlayedX,posJustPlayedY)
+  for (let y = 0; y < newWords.length; y++) {
+    if (y !== i) {
+      for (let z = 0; z < newWords[y].length; z++) {
+        // if (newWords[y].direction === 'row') console.log(
+        //   'update row',
+        //   newWords[y].position.x + z,
+        //   newWords[y].position.y
+        // );
+        // if (newWords[y].direction === 'column') console.log(
+        //   'update col',
+        //   newWords[y].position.x,
+        //   newWords[y].position.y + z
+        // );
+        if (newWords[y].direction === 'row') {
+          if (
+            posJustPlayedX === newWords[y].position.x + z && posJustPlayedY === newWords[y].position.y
+          ) {
+            console.log('update row',newWords[y].position.x + z,newWords[y].position.y, y, z);
+            // update newWords[y].word[z].newLetter
+            let tempNewWord = newWords[y].word.split('')
+            tempNewWord[z] = newLetter
+            newWords[y].word = tempNewWord.join('')
+          }
+        } else {
+          if (
+            posJustPlayedX === newWords[y].position.x && posJustPlayedY === newWords[y].position.y + z
+          ) {
+            console.log('update col',newWords[y].position.x, newWords[y].position.y + z, y, z);
+            // update newWords[y].word[z].newLetter
+            let tempNewWord = newWords[y].word.split('')
+            tempNewWord[z] = newLetter
+            newWords[y].word = tempNewWord.join('')
+          }
+        }
+      }
+    }
+  }
+  console.log(newWords);
+  return newWords;
 };
 
 const calculateScore = (words, maxNumberConsonants) => {
   // assign bonus points based on max Number Consonants selected
   let workScore = maxConsonantsPlayable - maxNumberConsonants;
   words.forEach(value => {
-    value.split('').forEach(char => {
+    value.word.split('').forEach(char => {
       workScore =
         workScore +
         letterPoints.find(item => {
@@ -106,7 +149,7 @@ const checkWords = words => {
   let invalidWord = '';
   let isWordValid = true;
   for (let j = 0; j < words.length; j++) {
-    if (validWord(words[j]) === false) {
+    if (validWord(words[j].word) === false) {
       isWordValid = false;
       invalidWord = words[j];
       break;
@@ -120,7 +163,7 @@ function verifyBoard(words, setScore, setMsgColorRed, maxNumberConsonants, setEr
   // Are all squares filled in?
   if (
     words.some(item => {
-      return item.letter === '';
+      return item.word.indexOf(' ') >= 0;
     })
   ) {
     workErrorMessage = 'Fill in all squares';
@@ -149,10 +192,11 @@ export {
   getWords,
   getRandomNumber,
   loadWord,
-  switchCell,
+  updateWord,
+  copyLetter,
   calculateScore,
   notVowel,
   checkWords,
   verifyBoard,
-  isMobile
+  isMobile,
 };

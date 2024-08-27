@@ -16,7 +16,6 @@ const Board = ({
   const [words, setWords, wordNo, addLetter] = useBoard(wordLengths);
 
   const handleDoneClick = () => {
-    //let words = getWords(wordNo, words);
     verifyBoard(words, setScore, setMsgColorRed, maxNumberConsonants, setErrorMessage);
     if (errorMessage !== '') {
       console.log('**********', errorMessage);
