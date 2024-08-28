@@ -43,10 +43,9 @@ const updateWord = (x, y, workWords, i) => {
 };
 
 const copyLetter = (newWords, newLetter, i, j) => {
-  //console.log('copy', newLetter, 'word', i, 'offset', j);
   let posJustPlayedX = 0;
   let posJustPlayedY = 0;
-  if (newWords[i].direcyion === 'row') {
+  if (newWords[i].direction === 'row') {
     posJustPlayedX = newWords[i].position.x + j;
     posJustPlayedY = newWords[i].position.y;
   } else {
