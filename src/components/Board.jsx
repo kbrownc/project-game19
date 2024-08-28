@@ -17,9 +17,6 @@ const Board = ({
 
   const handleDoneClick = () => {
     verifyBoard(words, setScore, setMsgColorRed, maxNumberConsonants, setErrorMessage);
-    if (errorMessage !== '') {
-      console.log('**********', errorMessage);
-    }
   };
 
   return (

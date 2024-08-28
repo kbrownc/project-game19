@@ -7,41 +7,11 @@ import { vowels, maxConsonantsPlayable } from './constants';
 
 // Look in correct dictionary to see if word exists
 function validWord(word) {
-  console.log('valid word', word);
   let wordDictionArray = [wordDictionary2, wordDictionary3, wordDictionary4, wordDictionary5];
   let wordDictionary = wordDictionArray[word.length - 2];
   return !!wordDictionary.find(item => {
     return item === word.toLowerCase();
   });
-}
-
-// get letters from board and put each word into an array
-//    the squares which contain 1's,2's,3's,..... etc. defines each word
-//    then create an array of words
-function getWords(wordNo, squares) {
-  let singleWord;
-  let wordsList = [];
-  let result = '';
-  for (let i = 1; i < wordNo + 1; i++) {
-    singleWord = [];
-    for (let j = 0; j < squares.length; j++) {
-      singleWord = squares.filter(event => {
-        if (event.wordNums.length === 1) {
-          return event.wordNums[0] === i;
-        } else if (event.wordNums.length === 2) {
-          return event.wordNums[0] === i || event.wordNums[1] === i;
-        } else {
-          return false;
-        }
-      });
-    }
-    // combine letters from each word
-    result = singleWord.reduce((word, item) => {
-      return word + item.letter;
-    }, '');
-    wordsList.push(result);
-  }
-  return wordsList;
 }
 
 const getRandomNumber = (start, end) => {
@@ -78,51 +48,31 @@ const copyLetter = (newWords, newLetter, i, j) => {
   let posJustPlayedX = 0;
   let posJustPlayedY = 0;
   if (newWords[i].direcyion === 'row') {
-    posJustPlayedX =  newWords[i].position.x + j
-    posJustPlayedY =  newWords[i].position.y
+    posJustPlayedX = newWords[i].position.x + j;
+    posJustPlayedY = newWords[i].position.y;
   } else {
-    posJustPlayedX =  newWords[i].position.x
-    posJustPlayedY =  newWords[i].position.y + j
+    posJustPlayedX = newWords[i].position.x;
+    posJustPlayedY = newWords[i].position.y + j;
   }
-  //console.log(posJustPlayedX,posJustPlayedY)
   for (let y = 0; y < newWords.length; y++) {
     if (y !== i) {
       for (let z = 0; z < newWords[y].length; z++) {
-        // if (newWords[y].direction === 'row') console.log(
-        //   'update row',
-        //   newWords[y].position.x + z,
-        //   newWords[y].position.y
-        // );
-        // if (newWords[y].direction === 'column') console.log(
-        //   'update col',
-        //   newWords[y].position.x,
-        //   newWords[y].position.y + z
-        // );
         if (newWords[y].direction === 'row') {
-          if (
-            posJustPlayedX === newWords[y].position.x + z && posJustPlayedY === newWords[y].position.y
-          ) {
-            console.log('update row',newWords[y].position.x + z,newWords[y].position.y, y, z);
-            // update newWords[y].word[z].newLetter
-            let tempNewWord = newWords[y].word.split('')
-            tempNewWord[z] = newLetter
-            newWords[y].word = tempNewWord.join('')
+          if (posJustPlayedX === newWords[y].position.x + z && posJustPlayedY === newWords[y].position.y) {
+            let tempNewWord = newWords[y].word.split('');
+            tempNewWord[z] = newLetter;
+            newWords[y].word = tempNewWord.join('');
           }
         } else {
-          if (
-            posJustPlayedX === newWords[y].position.x && posJustPlayedY === newWords[y].position.y + z
-          ) {
-            console.log('update col',newWords[y].position.x, newWords[y].position.y + z, y, z);
-            // update newWords[y].word[z].newLetter
-            let tempNewWord = newWords[y].word.split('')
-            tempNewWord[z] = newLetter
-            newWords[y].word = tempNewWord.join('')
+          if (posJustPlayedX === newWords[y].position.x && posJustPlayedY === newWords[y].position.y + z) {
+            let tempNewWord = newWords[y].word.split('');
+            tempNewWord[z] = newLetter;
+            newWords[y].word = tempNewWord.join('');
           }
         }
       }
     }
   }
-  console.log(newWords);
   return newWords;
 };
 
@@ -151,7 +101,7 @@ const checkWords = words => {
   for (let j = 0; j < words.length; j++) {
     if (validWord(words[j].word) === false) {
       isWordValid = false;
-      invalidWord = words[j];
+      invalidWord = words[j].word;
       break;
     }
   }
@@ -189,7 +139,6 @@ function isMobile() {
 
 export {
   validWord,
-  getWords,
   getRandomNumber,
   loadWord,
   updateWord,

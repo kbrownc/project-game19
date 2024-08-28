@@ -4,7 +4,6 @@ import { totalNumberOfConsonants, maxGameSize } from '../constants';
 
 const useBoard = wordLengths => {
   const [words, setWords] = useState([]);
-  //const [squares, setSquares] = useState([]);
   const [wordNo, setWordNo] = useState(1);
 
   // calculate board size   Turn this into the func that totals an array**************
@@ -105,10 +104,10 @@ const useBoard = wordLengths => {
       newLetter = '';
     }
     setErrorMessage(workErrorMessage);
-    // Add letter to available list if removed from game
-    // if (newSquares[i].letter !== '' && e.target.value === '' && notVowel(newSquares[i].letter)) {
-    //   workRemainingAlphabet.push(newSquares[i].letter);
-    // }
+    // Return letter to available list if removed from game
+    if (newWords[i].word[j] !== ' ' && e.target.value === '' && notVowel(newWords[i].word[j])) {
+      workRemainingAlphabet.push(newWords[i].word[j]);
+    }
     // if letter entered was not '' and was not a vowel, remove it from alphabet list
     if (newLetter !== '') {
       if (notVowel(newLetter)) {
