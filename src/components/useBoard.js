@@ -4,7 +4,6 @@ import { totalNumberOfConsonants, maxGameSize } from '../constants';
 
 const useBoard = wordLengths => {
   const [words, setWords] = useState([]);
-  const [wordNo, setWordNo] = useState(1);
 
   // calculate board size   Turn this into the func that totals an array**************
   const isBoardTooLarge = workWords => {
@@ -33,7 +32,6 @@ const useBoard = wordLengths => {
   // create an empty board
   useEffect(() => {
     let workWords = JSON.parse(JSON.stringify(words));
-    let workWordNo = wordNo;
     let direction = 'row';
     let randomNumber;
     let posX = 1;
@@ -47,7 +45,6 @@ const useBoard = wordLengths => {
         posY,
         workWords,
         direction,
-        workWordNo,
         wordLengths[i],
         randomNumber
       );
@@ -71,14 +68,12 @@ const useBoard = wordLengths => {
       );
 
       direction = direction === 'row' ? 'column' : 'row';
-      workWordNo++;
       if (i === wordLengths.length - 1) {
         i = -1;
       } // Re-loop through wordlengths if board is not max size
     }
     // Update statr values
     setWords(workWords);
-    setWordNo(workWordNo--);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // add a letter to the board
@@ -125,7 +120,7 @@ const useBoard = wordLengths => {
     setRemainingAlphabet(workRemainingAlphabet);
   };
 
-  return [words, setWords, wordNo, addLetter];
+  return [words, setWords, addLetter];
 };
 
 export default useBoard;

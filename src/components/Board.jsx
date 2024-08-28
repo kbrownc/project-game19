@@ -13,7 +13,7 @@ const Board = ({
   wordLengths,
 }) => {
   const [score, setScore] = useState(0);
-  const [words, setWords, wordNo, addLetter] = useBoard(wordLengths);
+  const [words, setWords, addLetter] = useBoard(wordLengths);
 
   const handleDoneClick = () => {
     verifyBoard(words, setScore, setMsgColorRed, maxNumberConsonants, setErrorMessage);

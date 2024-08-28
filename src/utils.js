@@ -22,10 +22,9 @@ const getRandomNumber = (start, end) => {
   return random;
 };
 
-const loadWord = (x, y, workWords, direction, workWordNo, length, randomNumber) => {
+const loadWord = (x, y, workWords, direction, length, randomNumber) => {
   let newWord = {};
   newWord = {
-    id: workWordNo,
     relatedLetter: { x: 0, y: 0 },
     word: ''.padStart(length, ' '),
     direction: direction,
