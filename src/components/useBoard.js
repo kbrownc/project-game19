@@ -91,7 +91,7 @@ const useBoard = wordLengths => {
     // Ensure input is a letter and available for selection
     if (
       workRemainingAlphabet.indexOf(e.target.value.toUpperCase()) === -1 &&
-      e.target.value !== '' &&
+      e.target.value !== ' ' && e.target.value !== '' &&
       workErrorMessage === '' &&
       notVowel(newLetter)
     ) {
